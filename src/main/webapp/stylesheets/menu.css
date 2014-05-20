@@ -1,0 +1,83 @@
+@font-face {
+	font-family: Century;
+	src: url('GOTHIC.ttf');
+}
+
+.titulo-principal {
+	display: block;
+	margin-top: 150px;
+    font-weight: bold;
+    font-size: 40px;
+}
+
+body {
+	font-family: Century;
+	background: rgb(51,51,51) url("fondo.jpg");
+	color: #fff;
+	padding: 20px;
+}
+
+.pagina {
+	width: 800px;
+	height: auto;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 80px;
+}
+
+.linha {
+	width: auto;
+	padding: 5px;
+	height: auto;
+	display: table;
+}
+
+.tile {
+	height: 100px;
+	width: 100px;
+	float: left;
+	margin: 0 5px 0 0;
+	padding: 2px;
+}
+
+.titulo { 
+	display: table;
+	height: 100%;
+	width: 100%;
+}
+
+.titulo a {
+	display: table-cell !important;
+	vertical-align: middle;
+	color: #FFFFFF;
+	font-size: 20px;
+	text-align: center;
+	display: block;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.titulo a:hover {
+	background: #00E0FF;
+	color: black;
+}
+
+.tileLargo {
+	width: 250px;
+}
+
+.amarelo {
+	background: #DAA520;
+}
+
+.vermelho {
+	background: #CD0000;
+}
+
+.rosado {
+	background: #D800FF;
+}
+
+.verde {
+	background-color: #4FCC33;
+}

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                template="/paginas/template.xhtml">
+
+    <ui:define name="titulo">Factura</ui:define> 
+
+    <ui:define name="cuerpo">
+
+        <p:dataTable id="factura"  value="#{facturaBean.facturas}" var="factura" selection="#{facturaBean.facturaSeleccionada}" selectionMode="single" scrollable="true" 
+                     rowKey="#{factura.codFactura}" style="width: 1000px"  scrollWidth="false"
+                     paginator="true" rows="10" paginatorPosition="bottom"
+                     paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                     emptyMessage="No se ha registrado ninguna Factura" rendered="#{not (facturaBean.enRegistro or facturaBean.enEdicion)}" >
+
+            <p:ajax event="rowSelect" listener="#{facturaBean.filaSeleccionada(evento)}" update="factura"/>
+            <p:ajax event="rowUnselect" listener="#{facturaBean.filaSeleccionada(evento)}" update="factura"/>
+
+            <f:facet name="header">
+                Factura
+            </f:facet>
+            <p:column headerText="Código Factura" style="width: 80px">
+                #{factura.codFactura}
+            </p:column>
+            <p:column headerText="Aseguradora" style="width: 200px">
+                #{factura.codAseguradora.nombre}
+            </p:column>
+            <p:column headerText="Hoja Parte" style="width: 120px">
+                #{factura.codHojaParte.codHojaParte}
+            </p:column>
+            <p:column headerText="SubTotal" style="width: 120px">
+                #{factura.subtotal}
+            </p:column>
+            <p:column headerText="I.V.A" style="width: 80px">
+                #{factura.iva}
+            </p:column>
+            <p:column headerText="Total" style="width: 80px">
+                #{factura.total}
+            </p:column>
+
+
+            <f:facet name="footer">  
+                <p:commandButton  value="Nuevo" update="@form" actionListener="#{facturaBean.nuevo(evento)}" disabled="#{facturaBean.disabledNuevo}" icon="ui-icon-document"/>  
+                <p:commandButton value="Eliminar" onclick="confirmation.show();" disabled="#{facturaBean.disabledModificar}" icon="ui-icon-close"/>
+            </f:facet>
+        </p:dataTable>
+
+        <p:confirmDialog id="confirmDialog" message="¿Seguro desea eliminar?"  
+                         header="Eliminación" severity="alert" widgetVar="confirmation">  
+            <p:commandButton id="confirm" value="Si, seguro" update="@form " oncomplete="confirmation.hide()"  
+                             actionListener="#{facturaBean.eliminar(evento)}"  />  
+            <p:commandButton id="decline" value="No" onclick="confirmation.hide();" type="button" />   
+
+        </p:confirmDialog> 
+
+
+        <p:panel id="nuevo" header="Generacion Facturas" style="width: 1000px"
+                 rendered="#{facturaBean.enRegistro or facturaBean.enEdicion}"> 
+            <p:focus context="nuevo"/> 
+            <p:panelGrid columns="6" >
+
+                <p:outputLabel for="codigoFactura" value="Código Factura:"/>
+                <p:inputText id="codigoFactura" value="#{facturaBean.codFactura}" required="true" requiredMessage="El codigo de la factura debe ser obligatorio"/>
+                <p:message for="codigoFactura"/>
+
+                <p:outputLabel for="codAseguradora" value="Aseguradora:"/>
+                <p:selectOneMenu id="codAseguradora" value="#{facturaBean.codAseguradora}" label="Codigo Aseguradora" >
+                    <f:selectItem itemValue="0" itemLabel="Seleccione..."/>
+                    <f:selectItems value="#{facturaBean.aseguradoras}" var="i" itemValue="#{i.codAseguradora}" itemLabel="#{i.nombre}" />
+                </p:selectOneMenu>
+                <p:message for="codAseguradora"/>
+
+                <p:outputLabel for="hojasParte" value="Hoja Parte:"/>
+                <p:selectOneMenu id="hojasParte" value="#{facturaBean.codHojaTrabajo}" label="Hoja Parte" >
+                    <f:selectItem itemValue="0" itemLabel="Seleccione..."/>
+                    <f:selectItems value="#{facturaBean.hojasTrabajos}" var="j" itemValue="#{j.codHojaParte}" itemLabel="#{j.codPlaca.codPlaca}" />
+                </p:selectOneMenu>
+                <p:outputLabel for="fecha" value="Fecha"/>
+                <p:calendar id="fecha" value="#{facturaBean.factura.fecha}" effect="explode" required="true" requiredMessage="El valor de fecha de la hoja de trabajo debe ser obligatorio"/>
+                <p:message for="fecha"/>
+                
+                <p:message for="hojasParte"/>
+            </p:panelGrid>  
+
+
+            <p:separator />
+
+            <p:dataTable id="detallefac"  value="#{facturaBean.detallesFactura}" var="dfact" selection="#{facturaBean.facturaSeleccionada}" selectionMode="single" scrollable="true" 
+                         rowKey="#{dfact.detalleFacturaPK.codDetalleFactura}" style="width: 1000px"  scrollWidth="false"
+                         paginator="true" rows="10" paginatorPosition="bottom"
+                         paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                         emptyMessage="No se ha registrado ningún Detalle" >
+
+                <p:ajax event="rowSelect"  listener="#{facturaBean.filaSeleccionadaF(evento)}" update="detallefac"/>
+                <p:ajax event="rowUnselect" listener="#{facturaBean.filaSeleccionadaF(evento)}" update="detallefac"/>
+
+                <f:facet name="header">
+                    Detalle Facturas
+                </f:facet>
+                <p:column  headerText="Codigo Detalle Factura" style="width: 80px">
+                    #{dfact.detalleFacturaPK.codDetalleFactura}
+                </p:column>
+                <p:column headerText="Descripcion" style="width: 200px">
+                    #{dfact.descripcion}
+                </p:column>
+                <p:column headerText="Cantidad" style="width: 200px">
+                    #{dfact.cantidad}
+                </p:column>
+                <p:column headerText="Valor Unitario" style="width: 120px">
+                    #{dfact.valorUnitario}
+                </p:column>
+                <p:column headerText="Valor Total" style="width: 120px">
+                    #{dfact.valorTotal}
+                </p:column>
+
+                <f:facet name="footer">  
+                    <p:commandButton  value="Agregar" actionListener="#{facturaBean.abrirDialog(evento)}" update=":form:mensaje"  onsuccess="dlg2.show()" icon="ui-icon-document"/>  
+                </f:facet>
+            </p:dataTable>
+
+            <f:facet name="footer"> 
+                <p:commandButton actionListener="#{facturaBean.guardar(evento)}"  value="Guardar" update=":form:" icon="ui-icon-disk"/>
+                <p:commandButton actionListener="#{facturaBean.cancelar()}" immediate="true" value="Cancelar" update="@form" icon="ui-icon-cancel"/>
+            </f:facet>
+
+        </p:panel>
+
+
+        <p:dialog id="modalDialog" header="Detalle Facturas" widgetVar="dlg2" modal="true" height="100">  
+            <p:panel>
+                <p:panelGrid id="mensaje" columns="3" >
+                    <p:outputLabel for="codigoDet" value="Código Detalle Factura"/>
+                    <p:inputText id="codigoDet" value="#{facturaBean.codDetalleFactura}" />
+                    <p:message for="codigoDet"/>
+                    <p:outputLabel for="descripcion" value="Descripción:"/>
+                    <p:inputText id="descripcion" value="#{facturaBean.descripcionDetalleFactura}" />
+                    <p:message for="descripcion"/>
+                    <p:outputLabel for="cantidad" value="Cantidad:"/>
+                    <p:inputText id="cantidad" value="#{facturaBean.cantidad}" />
+                    <p:message for="cantidad"/>
+                    <p:outputLabel for="vunitario" value="Valor Unitario:"/>
+                    <p:inputText id="vunitario" value="#{facturaBean.valorUni}" />
+                    <p:message for="vunitario"/>
+                </p:panelGrid>
+            </p:panel>
+
+            <f:facet name="footer"> 
+                <p:commandButton actionListener="#{facturaBean.agregar(evento)}" update=":form:detallefac" onsuccess="dlg2.hide()"  value="Agregar" icon="ui-icon-check"/>
+                <p:commandButton onsuccess="dlg2.hide()" immediate="true" value="Cancelar" update=":form:detallefac" icon="ui-icon-cancel"/>
+            </f:facet>
+
+        </p:dialog> 
+
+    </ui:define>
+</ui:composition>

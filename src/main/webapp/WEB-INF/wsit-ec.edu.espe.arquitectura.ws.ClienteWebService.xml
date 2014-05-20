@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+ <definitions 
+ xmlns="http://schemas.xmlsoap.org/wsdl/" 
+ xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+ xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="ClienteWebService" targetNamespace="http://ws.arquitectura.espe.edu.ec/" xmlns:tns="http://ws.arquitectura.espe.edu.ec/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp1="http://www.w3.org/ns/ws-policy" xmlns:fi="http://java.sun.com/xml/ns/wsit/2006/09/policy/fastinfoset/service" xmlns:tcp="http://java.sun.com/xml/ns/wsit/2006/09/policy/soaptcp/service" xmlns:wsaw="http://www.w3.org/2005/08/addressing" 
+ >
+    <message name="create"/>
+    <message name="createResponse"/>
+    <message name="update"/>
+    <message name="updateResponse"/>
+    <message name="delete"/>
+    <message name="deleteResponse"/>
+    <message name="findAll"/>
+    <message name="findAllResponse"/>
+    <message name="findByID"/>
+    <message name="findByIDResponse"/>
+    <portType name="ClienteWebService">
+        <operation name="create">
+            <input message="tns:create"/>
+            <output message="tns:createResponse"/>
+        </operation>
+        <operation name="update">
+            <input message="tns:update"/>
+            <output message="tns:updateResponse"/>
+        </operation>
+        <operation name="delete">
+            <input message="tns:delete"/>
+            <output message="tns:deleteResponse"/>
+        </operation>
+        <operation name="findAll">
+            <input message="tns:findAll"/>
+            <output message="tns:findAllResponse"/>
+        </operation>
+        <operation name="findByID">
+            <input message="tns:findByID"/>
+            <output message="tns:findByIDResponse"/>
+        </operation>
+    </portType>
+    <binding name="ClienteWebServicePortBinding" type="tns:ClienteWebService">
+        <wsp:PolicyReference URI="#ClienteWebServicePortBindingPolicy"/>
+        <operation name="create">
+            <input/>
+            <output/>
+        </operation>
+        <operation name="update">
+            <input/>
+            <output/>
+        </operation>
+        <operation name="delete">
+            <input/>
+            <output/>
+        </operation>
+        <operation name="findAll">
+            <input/>
+            <output/>
+        </operation>
+        <operation name="findByID">
+            <input/>
+            <output/>
+        </operation>
+    </binding>
+    <service name="ClienteWebService">
+        <port name="ClienteWebServicePort" binding="tns:ClienteWebServicePortBinding"/>
+    </service>
+    <wsp:Policy wsu:Id="ClienteWebServicePortBindingPolicy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <wsaw:UsingAddressing xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" wsp:Optional="true"/>
+                <tcp:OptimizedTCPTransport enabled="true"/>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+</definitions>

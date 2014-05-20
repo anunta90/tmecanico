@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                template="/paginas/template.xhtml">
+
+    <ui:define name="titulo">Hoja de Trabajo</ui:define> 
+
+    <ui:define name="cuerpo">
+
+        <p:dataTable id="hojas"  value="#{hojaTrabajoBean.hojas}" var="hoja" selection="#{hojaTrabajoBean.hojaTrabajoSeleccionado}" selectionMode="single" scrollable="true" 
+                     rowKey="#{hoja.codHojaParte}" style="width: 1000px"  scrollWidth="false"
+                     paginator="true" rows="10" paginatorPosition="bottom"
+                     paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                     emptyMessage="No se ha registrado ningún Vehículo" rendered="#{not (hojaTrabajoBean.enRegistro or hojaTrabajoBean.enEdicion)}" >
+
+            <p:ajax event="rowSelect" listener="#{hojaTrabajoBean.filaSeleccionada(evento)}" update="hojas"/>
+            <p:ajax event="rowUnselect" listener="#{hojaTrabajoBean.filaSeleccionada(evento)}" update="hojas"/>
+
+            <f:facet name="header">
+                Hojas de Trabajo
+            </f:facet>
+            <p:column headerText="Código" style="width: 80px">
+                #{hoja.codHojaParte}
+            </p:column>
+            <p:column headerText="Vehívulo" style="width: 200px">
+                #{hoja.codPlaca.codPlaca} - #{hoja.codPlaca.modelo.marca.nombre} - #{hoja.codPlaca.modelo.nombre}
+            </p:column>
+            <p:column headerText="Propietario" style="width: 120px">
+                #{hoja.codPlaca.codCliente.nombre}
+            </p:column>
+            <p:column headerText="Empleado" style="width: 120px">
+                #{hoja.codEmpleadoMecanica.nombre}
+            </p:column>
+            <p:column headerText="Fecha" style="width: 80px">
+                <h:outputLabel value="#{hoja.fecha}" style="text-align: right">
+                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                </h:outputLabel>
+            </p:column>
+            <p:column headerText="Ver Detalles" style="width: 120px">
+                <p:commandButton  value="Detalles" actionListener="#{hojaTrabajoBean.verDetallesTrabajo(evento)}" update=":form:detalleVisMec"  onsuccess="verDetalles.show()" icon="ui-icon-document"/>  
+            </p:column>
+
+            <f:facet name="footer">  
+                <p:commandButton  value="Nuevo" update="@form" actionListener="#{hojaTrabajoBean.nuevo(evento)}" disabled="#{hojaTrabajoBean.disabledNuevo}" icon="ui-icon-document"/>  
+                <p:commandButton value="Eliminar" onclick="confirmation.show();" disabled="#{hojaTrabajoBean.disabledModificar}" icon="ui-icon-close"/>
+            </f:facet>
+        </p:dataTable>
+
+        <p:confirmDialog id="confirmDialog" message="¿Seguro desea eliminar?"  
+                         header="Eliminación" severity="alert" widgetVar="confirmation">  
+            <p:commandButton id="confirm" value="Si, seguro" update="@form " oncomplete="confirmation.hide()"  
+                             actionListener="#{hojaTrabajoBean.eliminar(evento)}"  />  
+            <p:commandButton id="decline" value="No" onclick="confirmation.hide();" type="button" />   
+
+        </p:confirmDialog> 
+
+
+        <p:panel id="nuevo" header="Generacion de Hojas de Trabajo" style="width: 1000px"
+                 rendered="#{hojaTrabajoBean.enRegistro or hojaTrabajoBean.enEdicion}"> 
+            <p:focus context="nuevo"/> 
+            <p:panelGrid columns="6" >
+
+                <p:outputLabel for="codigo" value="Código:"/>
+                <p:inputText id="codigo" value="#{hojaTrabajoBean.hojaTrabajo.codHojaParte}" required="true" requiredMessage="El valor de la hoja de trabajo debe ser obligatorio"/>
+                <p:message for="codigo"/>
+
+                <p:outputLabel for="placas" value="Vehículo:"/>
+                <p:selectOneMenu id="placas" value="#{hojaTrabajoBean.codPlaca}" label="Placa" >
+                    <f:selectItem itemValue="0" itemLabel="Seleccione..."/>
+                    <f:selectItems value="#{hojaTrabajoBean.vehiculos}" var="i" itemValue="#{i.codPlaca}" itemLabel="#{i.codPlaca}" />
+                </p:selectOneMenu>
+                <p:message for="placas"/>
+
+                <p:outputLabel for="empleados" value="Empleados:"/>
+                <p:selectOneMenu id="empleados" value="#{hojaTrabajoBean.codEmpleadoMecanica}" label="Empleado" >
+                    <f:selectItem itemValue="0" itemLabel="Seleccione..."/>
+                    <f:selectItems value="#{hojaTrabajoBean.empleados}" var="j" itemValue="#{j.codEmpleadoMecanica}" itemLabel="#{j.nombre}" />
+                </p:selectOneMenu>
+                <p:message for="empleados"/>
+
+                <p:outputLabel for="fecha" value="Fecha"/>
+                <p:calendar id="fecha" value="#{hojaTrabajoBean.hojaTrabajo.fecha}" effect="explode" required="true" requiredMessage="El valor de fecha de la hoja de trabajo debe ser obligatorio"/>
+                <p:message for="fecha"/>
+
+            </p:panelGrid>  
+
+
+            <p:separator />
+
+            <p:dataTable id="detallehs"  value="#{hojaTrabajoBean.detallesTrabajos}" var="dhoja" selection="#{hojaTrabajoBean.detalleTrabajoSeleccionado}" selectionMode="single" scrollable="true" 
+                         rowKey="#{dhoja.codDetalleTrabajo}" style="width: 1000px"  scrollWidth="false"
+                         paginator="true" rows="10" paginatorPosition="bottom"
+                         paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                         emptyMessage="No se ha registrado ningún Detalle" >
+
+                <p:ajax event="rowSelect"  listener="#{hojaTrabajoBean.filaSeleccionadaD(evento)}" update="detallehs"/>
+                <p:ajax event="rowUnselect" listener="#{hojaTrabajoBean.filaSeleccionadaD(evento)}" update="detallehs"/>
+
+                <f:facet name="header">
+                    Detalle Hojas de Trabajo
+                </f:facet>
+                <p:column  headerText="Orden" style="width: 80px">
+                    #{dhoja.codDetalleTrabajo}
+                </p:column>
+                <p:column headerText="Descripcion" style="width: 200px">
+                    #{dhoja.descripcion}
+                </p:column>
+                <p:column headerText="Valor Estimado" style="width: 120px">
+                    #{dhoja.valorEstimado}
+                </p:column>
+                <p:column headerText="Valor Final" style="width: 120px">
+                    #{dhoja.valorFinal}
+                </p:column>
+                <f:facet name="footer">  
+                    <p:commandButton  value="Agregar" actionListener="#{hojaTrabajoBean.abrirDialog(evento)}" update=":form:mensaje"  onsuccess="dlg2.show()" icon="ui-icon-document"/>  
+                </f:facet>
+            </p:dataTable>
+           
+            <f:facet name="footer"> 
+                <p:commandButton actionListener="#{hojaTrabajoBean.guardar(evento)}"  value="Guardar" update="@form" icon="ui-icon-disk"/>
+                <p:commandButton actionListener="#{hojaTrabajoBean.cancelar()}" immediate="true" value="Cancelar" update="@form" icon="ui-icon-cancel"/>
+            </f:facet>
+
+        </p:panel>
+
+
+
+
+
+        <p:dialog id="modalDialog1" header="Detalle Repuestos" widgetVar="dlg3" modal="true" height="100">  
+            <p:panel>
+                <p:panelGrid id="mensaje1" columns="3" >
+
+                    <p:outputLabel for="a_codigo" value="Código"/>
+                    <p:selectOneMenu id="a_codigo" value="#{hojaTrabajoBean.codRepuesto}" label="Código" >
+                        <f:selectItems value="#{hojaTrabajoBean.repuestosMecanica}" var="k" itemValue="#{k.codRepuesto}" itemLabel="#{k.nombreRepuesto}" />
+                    </p:selectOneMenu>
+                    <p:message for="a_codigo"/>
+
+                    <p:outputLabel for="a_vestimado" value="Valor Estimado:"/>
+                    <p:inputText id="a_vestimado" value="#{hojaTrabajoBean.vEstimadoR}" />
+                    <p:message for="a_vestimado"/>
+                    <p:outputLabel for="a_vfinal" value="Valor Final:"/>
+                    <p:inputText id="a_vfinal" value="#{hojaTrabajoBean.vFinalR}" />
+                    <p:message for="a_vfinal"/>
+
+                </p:panelGrid>
+            </p:panel>
+
+            <f:facet name="footer"> 
+                <p:commandButton actionListener="#{hojaTrabajoBean.agregarRepuesto(evento)}"  update=":form:modalDialog1" onsuccess="dlg3.hide()"  value="Agregar" icon="ui-icon-check"/>
+                <p:commandButton onsuccess="dlg3.hide()" immediate="true" value="Cancelar"  update=":form:modalDialog1" icon="ui-icon-cancel"/>
+            </f:facet>
+
+        </p:dialog> 
+
+
+
+        <p:dialog id="modalDialog" header="Detalle Hoja de trabajo" widgetVar="dlg2" modal="true" height="100">  
+            <p:panel>
+                <p:panelGrid id="mensaje" columns="3" >
+                    <p:outputLabel for="_codigo" value="Código"/>
+                    <p:inputText id="_codigo" value="#{hojaTrabajoBean.codigo}" />
+                    <p:message for="_codigo"/>
+                    <p:outputLabel for="descripcion" value="Descripción:"/>
+                    <p:inputText id="descripcion" value="#{hojaTrabajoBean.descripcion}" />
+                    <p:message for="descripcion"/>
+                    <p:outputLabel for="vestimado" value="Valor Estimado:"/>
+                    <p:inputText id="vestimado" value="#{hojaTrabajoBean.vEstimado}" />
+                    <p:message for="vestimado"/>
+                    <p:outputLabel for="vfinal" value="Valor Final:"/>
+                    <p:inputText id="vfinal" value="#{hojaTrabajoBean.vFinal}" />
+                    <p:message for="vfinal"/>
+                </p:panelGrid>
+            </p:panel>
+
+            <f:facet name="footer"> 
+                <p:commandButton actionListener="#{hojaTrabajoBean.agregar(evento)}"  update=":form:detallehs" onsuccess="dlg2.hide()"  value="Agregar" icon="ui-icon-check"/>
+                <p:commandButton onsuccess="dlg2.hide()" immediate="true" value="Cancelar" update=":form:detallehs" icon="ui-icon-cancel"/>
+            </f:facet>
+
+        </p:dialog> 
+
+        <p:dialog id="modalDialog2" header="Detalle Hoja de trabajo" widgetVar="verDetalles" modal="true" height="100">  
+            <p:panel>
+                <p:dataTable id="detalleVisMec"  value="#{hojaTrabajoBean.detallesTrabajos}" var="dhojaV" selection="#{hojaTrabajoBean.detalleTrabajoSeleccionado}" selectionMode="single" scrollable="true" 
+                             rowKey="#{dhojaV.codDetalleTrabajo}" style="width: 1000px"  scrollWidth="false"
+                             paginator="true" rows="10" paginatorPosition="bottom"
+                             paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                             emptyMessage="No se ha registrado ningún Detalle" >
+
+                    <p:ajax event="rowSelect"  listener="#{hojaTrabajoBean.filaSeleccionadaD(evento)}" update="detalleVisMec"/>
+                    <p:ajax event="rowUnselect" listener="#{hojaTrabajoBean.filaSeleccionadaD(evento)}" update="detalleVisMec"/>
+
+                    <f:facet name="header">
+                        Detalle Hojas de Trabajo
+                    </f:facet>
+                    <p:column  headerText="Orden" style="width: 80px">
+                        #{dhojaV.codDetalleTrabajo}
+                    </p:column>
+                    <p:column headerText="Descripcion" style="width: 200px">
+                        #{dhojaV.descripcion}
+                    </p:column>
+                    <p:column headerText="Valor Estimado" style="width: 120px">
+                        #{dhojaV.valorEstimado}
+                    </p:column>
+                    <p:column headerText="Valor Final" style="width: 120px">
+                        #{dhojaV.valorFinal}
+                    </p:column>
+                    <!--
+                    <p:column headerText="Repuestos" style="width: 120px">
+                        <p:commandButton  value="Repuestos" actionListener="#{hojaTrabajoBean.abrirDialogR(evento)}" update=":form:mensaje1"  onsuccess="dlg3.show()" icon="ui-icon-document"/>  
+                    </p:column>-->
+                    <f:facet name="footer">  
+                        <p:commandButton  value="Agregar Repuesto" actionListener="#{hojaTrabajoBean.abrirDialog(evento)}" update=":form:modalDialog2"  onsuccess="dlg3.show()" icon="ui-icon-document"/>  
+                    </f:facet>
+                </p:dataTable>
+            </p:panel>
+        </p:dialog>
+
+    </ui:define>
+</ui:composition>

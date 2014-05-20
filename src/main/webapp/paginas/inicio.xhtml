@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" 
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                template="/paginas/template.xhtml">
+
+    <ui:define name="titulo">Vehiculo</ui:define> 
+
+    <ui:define name="cuerpo">
+        <p:dataTable id="vehiculos"  value="#{vehiculosBean.vehiculos}" var="vehiculo" selection="#{vehiculosBean.vehiculoSeleccionado}" selectionMode="single" scrollable="true" 
+                     rowKey="#{vehiculo.codPlaca}" style="width: 1000px"  scrollWidth="false"
+                     paginator="true" rows="10" paginatorPosition="bottom"
+                     paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                     emptyMessage="No se ha registrado ningún Vehículo" rendered="#{not (vehiculosBean.enRegistro or vehiculosBean.enEdicion)}" >
+
+            <p:ajax event="rowSelect" listener="#{vehiculosBean.filaSeleccionada(evento)}" update="vehiculos"/>
+            <p:ajax event="rowUnselect" listener="#{vehiculosBean.filaSeleccionada(evento)}" update="vehiculos"/>
+
+            <f:facet name="header">
+                Vehiculos
+            </f:facet>
+            <p:column headerText="Placa" style="width: 80px">
+                #{vehiculo.codPlaca}
+            </p:column>
+            <p:column headerText="Color" style="width: 80px">
+                #{vehiculo.color}
+            </p:column>
+            <p:column headerText="Aseguradora" style="width: 120px">
+                #{vehiculo.codAseguradora.nombre}
+            </p:column>
+            <p:column headerText="Propietario" style="width: 120px">
+                #{vehiculo.codCliente.nombre}
+            </p:column>
+            <p:column headerText="Modelo" style="width: 80px">
+                #{vehiculo.modelo.nombre}
+            </p:column>
+            <p:column headerText="Marca" style="width: 80px">
+                #{vehiculo.modelo.marca.nombre}
+            </p:column>
+            <p:column headerText="Año" style="width: 40px">
+                #{vehiculo.anio}
+            </p:column>
+            <p:column headerText="Kilometraje" style="width: 40px">
+                #{vehiculo.kilometraje}
+            </p:column>
+            <f:facet name="footer">  
+                <p:commandButton  value="Nuevo" update="@form" actionListener="#{vehiculosBean.nuevo(evento)}" disabled="#{vehiculosBean.disabledNuevo}" icon="ui-icon-document"/>  
+                <p:commandButton value="Modificar" update="@form" actionListener="#{vehiculosBean.modificar(evento)}" disabled="#{vehiculosBean.disabledModificar}" icon="ui-icon-pencil"/>
+                <p:commandButton value="Eliminar" onclick="confirmation.show();" disabled="#{vehiculosBean.disabledModificar}" icon="ui-icon-close"/>
+
+            </f:facet>
+        </p:dataTable>
+
+
+        <p:confirmDialog id="confirmDialog" message="¿Seguro desea eliminar?"  
+                         header="Eliminación" severity="alert" widgetVar="confirmation">  
+            <p:commandButton id="confirm" value="Si, seguro" update="@form " oncomplete="confirmation.hide()"  
+                             actionListener="#{vehiculosBean.eliminar(evento)}"  />  
+            <p:commandButton id="decline" value="No" onclick="confirmation.hide();" type="button" />   
+
+        </p:confirmDialog> 
+
+
+        <!--CREAR Vehiculo-->
+        <p:panel id="nuevo" header="Registro de Vehiculos" style="width: 1000px"
+                 rendered="#{vehiculosBean.enRegistro or vehiculosBean.enEdicion}"> 
+            <p:focus context="nuevo"/> 
+            <p:panelGrid columns="3" >  
+
+                <p:outputLabel for="placa" value="Placa:"/>
+                <p:inputText id="placa" value="#{vehiculosBean.vehiculo.codPlaca}" required="true" requiredMessage="El valor de la placa debe ser obligatorio"/>
+                <p:message for="placa"/>
+
+                <p:outputLabel for="anio" value="Año:"/>
+                <p:selectOneMenu id="anio" value="#{vehiculosBean.vehiculo.anio}" label="Año:" requiredMessage="Es obligatorio seleccionar un año de fabricación" required="true">
+                    <f:selectItem itemValue="0" itemLabel="Seleccione una."/>
+                    <f:selectItems value="#{vehiculosBean.anios}" var="anio" itemValue="#{anio}" itemLabel="#{anio}"/>
+                </p:selectOneMenu>
+                <p:message for="anio"/>
+
+                <p:outputLabel for="color" value="Color:"/>
+                <p:inputText id="color" value="#{vehiculosBean.vehiculo.color}" required="true" requiredMessage="El valor del color debe ser obligatorio"/>
+                <p:message for="color"/>
+
+                <p:outputLabel for="kilometraje" value="Kilometraje:"/>
+                <p:inputText id="kilometraje" value="#{vehiculosBean.vehiculo.kilometraje}" required="true" requiredMessage="El valor del kilometraje debe ser obligatorio"/>
+                <p:message for="kilometraje"/>
+
+                <p:outputLabel for="deducible" value="Mínimo deducible:"/>
+                <p:inputText id="deducible" value="#{vehiculosBean.vehiculo.minimoDeducible}" required="true" requiredMessage="El valor del Mínimo deducible debe ser obligatorio"/>
+                <p:message for="deducible"/>
+
+                <p:outputLabel for="pdeducible" value="Porcentaje deducible:"/>
+                <p:inputText id="pdeducible" value="#{vehiculosBean.vehiculo.porcentajeDeducible}" required="true" requiredMessage="El valor del Monto máximo de cobertura debe ser obligatorio"> 
+                </p:inputText>
+                <p:message for="pdeducible"/>
+
+                <p:outputLabel for="cobertura" value="Monto máximo Cobertura:"/>
+                <p:inputText id="cobertura" value="#{vehiculosBean.vehiculo.montoMaximoCobertura}" required="true" requiredMessage="El valor del Monto máximo de cobertura debe ser obligatorio"/>
+                <p:message for="cobertura"/>
+
+                <p:outputLabel for="chasis" value="Número chasis:"/>
+                <p:inputText id="chasis" value="#{vehiculosBean.vehiculo.numChasis}" />
+                <p:message for="chasis"/>
+
+                <p:outputLabel for="motor" value='Número motor:'/>
+                <p:inputText id="motor" value="#{vehiculosBean.vehiculo.numMotor}"  />
+                <p:message for="motor"/>
+
+
+                <p:outputLabel for="aseguradora" value="Aseguradora:"/>
+                <p:selectOneMenu id="aseguradora" value="#{vehiculosBean.codAseguradora}" label="Aseguradora:" requiredMessage="Es obligatorio seleccionar una empresa aseguradora" required="true">
+                    <f:selectItem itemValue="0" itemLabel="Seleccione una."/>
+                    <f:selectItems value="#{vehiculosBean.aseguradoras}" var="aseguradora" itemValue="#{aseguradora.codAseguradora}" itemLabel="#{aseguradora.nombre}"/>
+                </p:selectOneMenu>
+                <p:message for="aseguradora"/>
+
+
+                <p:outputLabel for="cliente" value="Cliente:"/>
+                <p:selectOneMenu id="cliente" value="#{vehiculosBean.codCliente}" label="Aseguradora:" requiredMessage="Es obligatorio seleccionar una empresa aseguradora" required="true">
+                    <f:selectItem itemValue="0" itemLabel="Seleccione una."/>
+                    <f:selectItems value="#{vehiculosBean.clientes}" var="cliente" itemValue="#{cliente.codCliente}" itemLabel="#{cliente.nombre}"/>
+                </p:selectOneMenu>
+                <p:message for="cliente"/>
+
+                <h:outputLabel for="marcas" value="Marca: " />  
+                <p:selectOneMenu id="marcas" value="#{vehiculosBean.codMarca}" label="Marca" >
+                    <f:selectItem itemValue="0" itemLabel="Seleccione..."/>
+                    <f:selectItems value="#{vehiculosBean.marcas}" var="i" itemValue="#{i.codMarca}" itemLabel="#{i.nombre}" />
+                    <p:ajax update="modelos"  listener="#{vehiculosBean.cargarTabla(evento)}" />  
+                </p:selectOneMenu>
+                <p:message for="marcas"/>
+                
+                <h:outputLabel for="modelos" value="Modelo: " />  
+                <p:selectOneMenu id="modelos" value="#{vehiculosBean.codModelo}" label="Modelo" >
+                    <f:selectItem itemValue="0" itemLabel="Seleccione..."/>
+                    <f:selectItems value="#{vehiculosBean.modelos}" var="i" itemValue="#{i.modeloPK.codModelo}" itemLabel="#{i.nombre}" />
+                </p:selectOneMenu>
+                <p:message for="modelos"/>              
+            </p:panelGrid>
+            <f:facet name="footer"> 
+                <p:commandButton actionListener="#{vehiculosBean.guardar(evento)}"  value="Guardar" update="@form" icon="ui-icon-disk"/>
+                <p:commandButton actionListener="#{vehiculosBean.cancelar()}" immediate="true" value="Cancelar" update="@form" icon="ui-icon-cancel"/>
+            </f:facet>
+        </p:panel>
+
+
+
+    </ui:define>
+</ui:composition>
